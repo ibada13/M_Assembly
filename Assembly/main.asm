@@ -5,13 +5,22 @@ include C:\masm32\include\masm32rt.inc
 
 prompt db "hello world: ",0
 del db "world",0
-dell db "world",0
-
+dell db "dorld",0
+there db 50 dup(0)
 minput DB 50 DUP(?)
 slen db 0
 .code 
 ;
 ;1 str => size at cx
+;------------------------------------------------------------
+;strlen, 
+; Calculates the lenght of string.
+; as input : offset of the string should be pushed
+;
+; Returns: cx = lenght.
+;-------------------------------------------------------------
+
+
 strlen proc
 push eax
 mov eax , [esp + 8 ]
@@ -47,7 +56,40 @@ retl:
 pop ebx
 ret
 strcmp endp
+;------------------------------------------------------------
+;strcpy
+; copy string into anothter
+;
+; Receives: destnition offset should pushed first and well declerad
+; source offset should pushed secondly and null terminjated
+; 
+; reurnes : cx containes the number of chracter that are copied
+;-------------------------------------------------------------
+strcpy proc
+push ebx
+push eax
+push edx
+mov eax , [esp + 16]
+mov ebx , [esp + 20 ]
 
+xor cx,cx 
+l1:
+cmp byte ptr [ebx],0
+je retl
+mov dl,[ebx]
+mov [eax],dl
+inc eax
+inc bx
+inc cx
+jmp l1
+retl:
+
+mov byte ptr [eax],00h
+pop edx
+pop eax
+pop ebx
+ret
+strcpy endp
 
 ;1 should be included in 2: the adress of 1 that si in 2 will be in ebx else cx is 0 
 checkstrinstr proc
@@ -127,7 +169,7 @@ jl retl
 sub cx,[ebp - 4]
 cmp cx,[ebp - 12]
 jl retl
-cmp [ebp - 4],0
+;cmp [ebp - 4],0
 jle retl
 mov cl,[eax]
 l1:
@@ -142,7 +184,7 @@ push ebx
 push eax
 call checkstrinstr
 cmp cx,0
-je retl:
+je retl
 
 
 
@@ -153,10 +195,22 @@ pop ebp
 ret
 removestr endp
 start: 
-    push offset prompt ; p>d
+    ;mov ecx, offset there
+    ;push offset prompt ; p>d
+    ;push offset del
+    ;call checkstrinstr   
+    ;push ebx 
+
+    push offset dell
+    call StdOut
     push offset del
-    call checkstrinstr   
-    push ebx 
+    call StdOut
+    push offset dell 
+    push offset del 
+    call strcpy
+      push offset dell
+    call StdOut
+    push offset del
     call StdOut
     invoke ExitProcess,1
 end start
