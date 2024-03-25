@@ -1,11 +1,13 @@
 
+
 include C:\masm32\include\masm32rt.inc 
-.stack 4096
+
+
 .data
 
 prompt db "hello world: ",0
 del db "world",0
-dell db "dorld",0
+dell db "zorld",0
 there db 50 dup(0)
 minput DB 50 DUP(?)
 slen db 0
@@ -15,34 +17,48 @@ slen db 0
 ;------------------------------------------------------------
 ;strlen, 
 ; Calculates the lenght of string.
-; as input : offset of the string should be pushed
+; as input : EAX CONTAINS offset of the string should be pushed
 ;
 ; Returns: cx = lenght.
 ;-------------------------------------------------------------
 
 
 strlen proc
-push eax
-mov eax , [esp + 8 ]
+PUSH EAX
+MOV eax , [esp + 8]
+xor cx,cx
+l1:
 cmp byte ptr [eax],0
 je retl
-xor cx,cx
 
-l1:
 
 inc cx 
 inc eax
-cmp byte ptr [eax],0
-jne l1
+JMP l1
 retl:
 pop eax
-ret
+retn 4
 
 strlen endp
+
+
 strcmp proc
+
+PUSH EAX
+mov eax, [esp + 8] 
+push ecx
 push ebx
-mov  eax,[esp + 12]
-mov  ebx,[esp+8]
+mov ebx,[esp + 20]
+PUSH EBP 
+MOV EBP ,ESP 
+SUB ESP , 4
+push eax 
+call strlen
+mov dx , cx
+push ebx
+call strlen 
+cmp cx, dx
+jne retl
 l1:
 mov dl,[eax]
 cmp dl,[ebx]
@@ -53,7 +69,11 @@ inc eax
 inc ebx 
 jmp l1
 retl:
+mov esp,ebp
+pop ebp 
 pop ebx
+pop ecx
+POP EAX
 ret
 strcmp endp
 ;------------------------------------------------------------
@@ -195,22 +215,22 @@ pop ebp
 ret
 removestr endp
 start: 
-    ;mov ecx, offset there
-    ;push offset prompt ; p>d
-    ;push offset del
-    ;call checkstrinstr   
-    ;push ebx 
-
-    push offset dell
-    call StdOut
-    push offset del
-    call StdOut
-    push offset dell 
-    push offset del 
-    call strcpy
-      push offset dell
-    call StdOut
-    push offset del
-    call StdOut
-    invoke ExitProcess,1
+	push offset dell
+	call StdOut
+	push offset del
+                   push offset del 
+	
+	call strcmp
+	cmp dl , 0
+	jne endl
+	
+		
+		push offset del
+		call StdOut
+                   invoke ExitProcess , 1                   
+	endl:
+                    push offset dell 
+                    call StdOut
+	invoke ExitProcess , 0
+	
 end start
