@@ -6,8 +6,11 @@ include C:\masm32\include\masm32rt.inc
 .data
 
 prompt db "hello world: ",0
-del db "world",0
-dell db "zorld",0
+pass db "password",0
+inp db 25 dup(?)
+wel db "ctf level: easy ",10," welcom admin " , 10 , "enter the password : ",0
+passc db "welcome admin ", 0 
+passw db "not welcome" , 0 
 there db 50 dup(0)
 minput DB 50 DUP(?)
 slen db 0
@@ -215,21 +218,25 @@ pop ebp
 ret
 removestr endp
 start: 
-	push offset dell
+
+	push offset wel
 	call StdOut
-	push offset del
-                   push offset del 
+	push 50
+	push offset inp
+	call StdIn
+	push offset inp
+	push offset pass 
 	
 	call strcmp
 	cmp dl , 0
 	jne endl
 	
 		
-		push offset del
+		push offset passc
 		call StdOut
                    invoke ExitProcess , 1                   
 	endl:
-                    push offset dell 
+                    push offset passw 
                     call StdOut
 	invoke ExitProcess , 0
 	
